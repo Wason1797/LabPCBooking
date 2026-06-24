@@ -24,13 +24,14 @@ services:
       - "8000:8000"
 
   ui:
-    build: ./ui
+    build:
+      context: ./ui
+      args:
+        - VITE_API_URL=${VITE_API_URL}
     ports:
       - "8080:80"
-    environment:
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     env_file:
-      - .env
+      - ./.env
 
 volumes:
   db_data:
