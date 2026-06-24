@@ -1,0 +1,14 @@
+[
+  { "id": "pc-01", "name": "PC-01", "macAddress": "A4:5E:60:C1:7B:01", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC01-2026" },
+  { "id": "pc-02", "name": "PC-02", "macAddress": "A4:5E:60:C1:7B:02", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC02-2026" },
+  { "id": "pc-03", "name": "PC-03", "macAddress": "A4:5E:60:C1:7B:03", "osImage": "Ubuntu 24.04 LTS", "assignedUser": "Robotics Group", "assignedUserEmail": "robotics@fuas.edu", "password": "Lab!PC03-2026" },
+  { "id": "pc-04", "name": "PC-04", "macAddress": "A4:5E:60:C1:7B:04", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC04-2026" },
+  { "id": "pc-05", "name": "PC-05", "macAddress": "A4:5E:60:C1:7B:05", "osImage": "Ubuntu 24.04 LTS", "assignedUser": "Data Science Group", "assignedUserEmail": "datascience@fuas.edu", "password": "Lab!PC05-2026" },
+  { "id": "pc-06", "name": "PC-06", "macAddress": "A4:5E:60:C1:7B:06", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC06-2026" },
+  { "id": "pc-07", "name": "PC-07", "macAddress": "A4:5E:60:C1:7B:07", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC07-2026" },
+  { "id": "pc-08", "name": "PC-08", "macAddress": "A4:5E:60:C1:7B:08", "osImage": "Pop!_OS 22.04", "assignedUser": "Game Dev Group", "assignedUserEmail": "gamedev@fuas.edu", "password": "Lab!PC08-2026" },
+  { "id": "pc-09", "name": "PC-09", "macAddress": "A4:5E:60:C1:7B:09", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC09-2026" },
+  { "id": "pc-10", "name": "PC-10", "macAddress": "A4:5E:60:C1:7B:0A", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC10-2026" },
+  { "id": "pc-11", "name": "PC-11", "macAddress": "A4:5E:60:C1:7B:0B", "osImage": "Fedora 40 Workstation", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC11-2026" },
+  { "id": "pc-12", "name": "PC-12", "macAddress": "A4:5E:60:C1:7B:0C", "osImage": "Windows 11 Edu 23H2", "assignedUser": "Lab Admin", "assignedUserEmail": "labadmin@fuas.edu", "password": "Lab!PC12-2026" }
+]
