@@ -3,15 +3,15 @@ import type { Selection } from '../components/organisms/BookingMatrix'
 
 interface UseDragSelectionOptions {
   /** Whether a given slot is already booked (and therefore not selectable). */
-  isSlotBooked: (computerId: string, hour: number) => boolean
+  isSlotBooked: (computerId: number, hour: number) => boolean
   /** Called with the final selection when the drag ends. */
   onComplete: (selection: Selection) => void
 }
 
 interface UseDragSelectionResult {
   selection: Selection | null
-  onPointerDown: (computerId: string, hour: number) => void
-  onPointerEnter: (computerId: string, hour: number) => void
+  onPointerDown: (computerId: number, hour: number) => void
+  onPointerEnter: (computerId: number, hour: number) => void
   clear: () => void
 }
 
@@ -25,7 +25,7 @@ export function useDragSelection({
 }: UseDragSelectionOptions): UseDragSelectionResult {
   const [selection, setSelection] = useState<Selection | null>(null)
   const dragging = useRef(false)
-  const anchor = useRef<{ computerId: string; hour: number } | null>(null)
+  const anchor = useRef<{ computerId: number; hour: number } | null>(null)
 
   const clear = useCallback(() => {
     dragging.current = false
@@ -34,7 +34,7 @@ export function useDragSelection({
   }, [])
 
   const onPointerDown = useCallback(
-    (computerId: string, hour: number) => {
+    (computerId: number, hour: number) => {
       if (isSlotBooked(computerId, hour)) return
       dragging.current = true
       anchor.current = { computerId, hour }
@@ -44,7 +44,7 @@ export function useDragSelection({
   )
 
   const onPointerEnter = useCallback(
-    (computerId: string, hour: number) => {
+    (computerId: number, hour: number) => {
       if (!dragging.current || !anchor.current) return
       if (computerId !== anchor.current.computerId) return // stay in one row
 

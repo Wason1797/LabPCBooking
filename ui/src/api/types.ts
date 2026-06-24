@@ -1,8 +1,10 @@
 export interface Computer {
-  id: string
+  id: number
   name: string
   /** Network MAC address, e.g. "A4:5E:60:C1:7B:02". */
   macAddress: string
+  /** Network IP address used to reach the machine, e.g. "10.0.12.34". */
+  ipAddress: string
   /** Currently deployed OS image, e.g. "Windows 11 Edu 23H2". */
   osImage: string
   /** Name of the user/person assigned to this machine. */
@@ -14,8 +16,8 @@ export interface Computer {
 }
 
 export interface Booking {
-  id: string
-  computerId: string
+  id: number
+  computerId: number
   studentName: string
   studentEmail: string
   projectName: string
@@ -32,9 +34,22 @@ export interface Booking {
 /** Payload for creating a booking — server assigns the id. */
 export type NewBooking = Omit<Booking, 'id'>
 
+/** Payload for creating a computer — server assigns the id. */
+export type NewComputer = Omit<Computer, 'id'>
+
+/**
+ * Reachability of a single host as returned by the API's /ping endpoint, keyed
+ * by IP address in the response object.
+ */
+export interface HostPing {
+  reachable: boolean
+  /** Average round-trip latency in ms when reachable, null when unreachable. */
+  latencyMs: number | null
+}
+
 /** Result of pinging a computer to check whether it is reachable. */
 export interface PingResult {
-  computerId: string
+  computerId: number
   online: boolean
   /** Round-trip latency in ms when online, null when offline. */
   latencyMs: number | null

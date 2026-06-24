@@ -5,7 +5,7 @@ import { PingStatusDot } from '../atoms/PingStatusDot'
 import { HOURS, formatHour, bookingCoversSlot } from '../../utils/time'
 
 export interface Selection {
-  computerId: string
+  computerId: number
   startHour: number
   endHour: number
 }
@@ -16,12 +16,13 @@ interface BookingMatrixProps {
   /** The day currently displayed (YYYY-MM-DD). */
   date: string
   selection: Selection | null
-  onPointerDown: (computerId: string, hour: number) => void
-  onPointerEnter: (computerId: string, hour: number) => void
+  onPointerDown: (computerId: number, hour: number) => void
+  onPointerEnter: (computerId: number, hour: number) => void
   onComputerClick: (computer: Computer) => void
   onBookingClick: (booking: Booking) => void
-  pingResults: Record<string, PingResult>
-  pinging: Set<string>
+  onAddComputer: () => void
+  pingResults: Record<number, PingResult>
+  pinging: Set<number>
 }
 
 const NAME_COL = '7rem'
@@ -35,6 +36,7 @@ export function BookingMatrix({
   onPointerEnter,
   onComputerClick,
   onBookingClick,
+  onAddComputer,
   pingResults,
   pinging,
 }: BookingMatrixProps) {
@@ -53,7 +55,7 @@ export function BookingMatrix({
 
   const gridTemplate = `${NAME_COL} repeat(${HOURS.length}, minmax(2.25rem, 1fr))`
 
-  function isSelected(computerId: string, hour: number) {
+  function isSelected(computerId: number, hour: number) {
     return (
       selection !== null &&
       selection.computerId === computerId &&
@@ -116,6 +118,19 @@ export function BookingMatrix({
             })}
           </div>
         ))}
+
+        {/* Trailing row: add a new computer to the lab. */}
+        <div className="contents">
+          <button
+            type="button"
+            onClick={onAddComputer}
+            title="Add a computer"
+            style={{ gridColumn: '1 / -1' }}
+            className="flex items-center gap-1.5 border-t border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            <span className="text-base leading-none">+</span> Add PC
+          </button>
+        </div>
       </div>
     </div>
   )

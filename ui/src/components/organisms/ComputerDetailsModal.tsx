@@ -10,14 +10,17 @@ import { FormField } from '../molecules/FormField'
 interface ComputerDetailsModalProps {
   open: boolean
   computer: Computer | null
+  /** Number of bookings on this computer; all are removed when it's deleted. */
+  bookingCount: number
   pingResult: PingResult | undefined
   pinging: boolean
-  onPing: (id: string) => void
+  onPing: (id: number) => void
   onClose: () => void
   onSave: (
-    id: string,
+    id: number,
     changes: Partial<Omit<Computer, 'id'>>,
   ) => Promise<void>
+  onDelete: (id: number) => Promise<void>
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -25,6 +28,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 interface Errors {
   name?: string
   macAddress?: string
+  ipAddress?: string
   osImage?: string
   assignedUser?: string
   assignedUserEmail?: string
@@ -34,6 +38,7 @@ interface Errors {
 const FIELDS: { key: keyof Computer; label: string }[] = [
   { key: 'name', label: 'Computer name' },
   { key: 'macAddress', label: 'MAC address' },
+  { key: 'ipAddress', label: 'IP address' },
   { key: 'osImage', label: 'OS image' },
   { key: 'assignedUser', label: 'Assigned user' },
   { key: 'assignedUserEmail', label: 'User email' },
@@ -42,26 +47,33 @@ const FIELDS: { key: keyof Computer; label: string }[] = [
 /** Mounted only while the modal is open, so field state resets on each open. */
 function ComputerDetails({
   computer,
+  bookingCount,
   pingResult,
   pinging,
   onPing,
   onClose,
   onSave,
+  onDelete,
 }: {
   computer: Computer
+  bookingCount: number
   pingResult: PingResult | undefined
   pinging: boolean
-  onPing: (id: string) => void
+  onPing: (id: number) => void
   onClose: () => void
   onSave: ComputerDetailsModalProps['onSave']
+  onDelete: ComputerDetailsModalProps['onDelete']
 }) {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [revealPassword, setRevealPassword] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
   const [form, setForm] = useState({
     name: computer.name,
     macAddress: computer.macAddress,
+    ipAddress: computer.ipAddress,
     osImage: computer.osImage,
     assignedUser: computer.assignedUser,
     assignedUserEmail: computer.assignedUserEmail,
@@ -76,6 +88,7 @@ function ComputerDetails({
     const next: Errors = {}
     if (!form.name.trim()) next.name = 'Required'
     if (!form.macAddress.trim()) next.macAddress = 'Required'
+    if (!form.ipAddress.trim()) next.ipAddress = 'Required'
     if (!form.osImage.trim()) next.osImage = 'Required'
     if (!form.assignedUser.trim()) next.assignedUser = 'Required'
     if (!form.assignedUserEmail.trim())
@@ -97,6 +110,7 @@ function ComputerDetails({
       await onSave(computer.id, {
         name: form.name.trim(),
         macAddress: form.macAddress.trim(),
+        ipAddress: form.ipAddress.trim(),
         osImage: form.osImage.trim(),
         assignedUser: form.assignedUser.trim(),
         assignedUserEmail: form.assignedUserEmail.trim(),
@@ -108,11 +122,22 @@ function ComputerDetails({
     }
   }
 
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      await onDelete(computer.id)
+      onClose()
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   function cancelEdit() {
     // Restore the form to the saved values and leave edit mode.
     setForm({
       name: computer.name,
       macAddress: computer.macAddress,
+      ipAddress: computer.ipAddress,
       osImage: computer.osImage,
       assignedUser: computer.assignedUser,
       assignedUserEmail: computer.assignedUserEmail,
@@ -146,7 +171,9 @@ function ComputerDetails({
               </dt>
               <dd
                 className={`text-sm text-slate-800 ${
-                  key === 'macAddress' ? 'font-mono' : ''
+                  key === 'macAddress' || key === 'ipAddress'
+                    ? 'font-mono'
+                    : ''
                 }`}
               >
                 {computer[key]}
@@ -171,12 +198,47 @@ function ComputerDetails({
             </dd>
           </div>
         </dl>
-        <div className="flex justify-end gap-2 pt-1">
-          <Button variant="secondary" onClick={onClose}>
-            Close
-          </Button>
-          <Button onClick={() => setEditing(true)}>Edit</Button>
-        </div>
+        {confirming ? (
+          <div className="space-y-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3">
+            <p className="text-sm text-rose-700">
+              Delete {computer.name}?{' '}
+              {bookingCount > 0
+                ? `Its ${bookingCount} booking${
+                    bookingCount === 1 ? '' : 's'
+                  } will also be deleted. `
+                : ''}
+              This can’t be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => setConfirming(false)}
+                disabled={deleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? 'Deleting…' : 'Confirm delete'}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-between gap-2 pt-1">
+            <Button variant="danger" onClick={() => setConfirming(true)}>
+              Delete PC
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={onClose}>
+                Close
+              </Button>
+              <Button onClick={() => setEditing(true)}>Edit</Button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -199,6 +261,16 @@ function ComputerDetails({
           invalid={!!errors.macAddress}
           onChange={(e) => set('macAddress', e.target.value)}
           placeholder="A4:5E:60:C1:7B:01"
+          className="font-mono"
+        />
+      </FormField>
+      <FormField label="IP address" htmlFor="pc-ip" error={errors.ipAddress}>
+        <Input
+          id="pc-ip"
+          value={form.ipAddress}
+          invalid={!!errors.ipAddress}
+          onChange={(e) => set('ipAddress', e.target.value)}
+          placeholder="10.0.12.34"
           className="font-mono"
         />
       </FormField>
@@ -270,11 +342,13 @@ function ComputerDetails({
 export function ComputerDetailsModal({
   open,
   computer,
+  bookingCount,
   pingResult,
   pinging,
   onPing,
   onClose,
   onSave,
+  onDelete,
 }: ComputerDetailsModalProps) {
   return (
     <Modal
@@ -285,11 +359,13 @@ export function ComputerDetailsModal({
       {computer && (
         <ComputerDetails
           computer={computer}
+          bookingCount={bookingCount}
           pingResult={pingResult}
           pinging={pinging}
           onPing={onPing}
           onClose={onClose}
           onSave={onSave}
+          onDelete={onDelete}
         />
       )}
     </Modal>

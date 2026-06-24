@@ -6,6 +6,7 @@ import type { Selection } from '../organisms/BookingMatrix'
 import { BookingFormModal } from '../organisms/BookingFormModal'
 import { BookingDetailsModal } from '../organisms/BookingDetailsModal'
 import { ComputerDetailsModal } from '../organisms/ComputerDetailsModal'
+import { ComputerFormModal } from '../organisms/ComputerFormModal'
 import { Legend } from '../molecules/Legend'
 import { Spinner } from '../atoms/Spinner'
 import { Button } from '../atoms/Button'
@@ -28,16 +29,19 @@ export function BookingPage() {
     updateBooking,
     deleteBooking,
     updateComputer,
+    addComputer,
+    deleteComputer,
   } = useBookings()
 
   const [modalSelection, setModalSelection] = useState<Selection | null>(null)
   const [modalComputer, setModalComputer] = useState<Computer | null>(null)
-  const [detailsComputerId, setDetailsComputerId] = useState<string | null>(
+  const [detailsComputerId, setDetailsComputerId] = useState<number | null>(
     null,
   )
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
     null,
   )
+  const [addingComputer, setAddingComputer] = useState(false)
 
   // Read the booking from the live list so it disappears once deleted.
   const selectedBooking =
@@ -48,13 +52,12 @@ export function BookingPage() {
     computers.find((c) => c.id === detailsComputerId) ?? null
 
   // Reachability: ping all PCs on load + every 5 minutes, or on demand.
-  const computerIds = useMemo(() => computers.map((c) => c.id), [computers])
   const {
     results: pingResults,
     pinging,
     pingOne,
     pingAll,
-  } = usePing(computerIds)
+  } = usePing(computers)
 
   // Fast lookup of booked slots for the displayed day.
   const bookedSlots = useMemo(() => {
@@ -70,7 +73,7 @@ export function BookingPage() {
   }, [bookings, selectedDate])
 
   const isSlotBooked = useCallback(
-    (computerId: string, hour: number) =>
+    (computerId: number, hour: number) =>
       bookedSlots.has(`${computerId}:${hour}`),
     [bookedSlots],
   )
@@ -100,6 +103,11 @@ export function BookingPage() {
     await createBooking(payload)
     closeModal()
   }
+
+  // Bookings on the PC shown in the details modal — surfaced before deletion.
+  const detailsBookingCount = bookings.filter(
+    (b) => b.computerId === detailsComputerId,
+  ).length
 
   return (
     <BookingLayout
@@ -153,6 +161,7 @@ export function BookingPage() {
           onPointerEnter={onPointerEnter}
           onComputerClick={(computer) => setDetailsComputerId(computer.id)}
           onBookingClick={(booking) => setSelectedBookingId(booking.id)}
+          onAddComputer={() => setAddingComputer(true)}
           pingResults={pingResults}
           pinging={pinging}
         />
@@ -173,6 +182,7 @@ export function BookingPage() {
       <ComputerDetailsModal
         open={detailsComputer !== null}
         computer={detailsComputer}
+        bookingCount={detailsBookingCount}
         pingResult={
           detailsComputer ? pingResults[detailsComputer.id] : undefined
         }
@@ -180,6 +190,15 @@ export function BookingPage() {
         onPing={(id) => void pingOne(id)}
         onClose={() => setDetailsComputerId(null)}
         onSave={updateComputer}
+        onDelete={deleteComputer}
+      />
+
+      <ComputerFormModal
+        open={addingComputer}
+        onClose={() => setAddingComputer(false)}
+        onSubmit={async (payload) => {
+          await addComputer(payload)
+        }}
       />
 
       <BookingFormModal

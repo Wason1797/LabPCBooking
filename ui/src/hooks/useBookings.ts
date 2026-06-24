@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Booking, Computer, NewBooking } from '../api/types'
-import * as api from '../api/mockApi'
+import type { Booking, Computer, NewBooking, NewComputer } from '../api/types'
+import * as api from '../api/client'
 
 interface UseBookingsResult {
   computers: Computer[]
@@ -10,14 +10,16 @@ interface UseBookingsResult {
   creating: boolean
   createBooking: (payload: NewBooking) => Promise<void>
   updateBooking: (
-    id: string,
+    id: number,
     changes: Partial<Omit<Booking, 'id'>>,
   ) => Promise<void>
-  deleteBooking: (id: string) => Promise<void>
+  deleteBooking: (id: number) => Promise<void>
   updateComputer: (
-    id: string,
+    id: number,
     changes: Partial<Omit<Computer, 'id'>>,
   ) => Promise<void>
+  addComputer: (payload: NewComputer) => Promise<Computer>
+  deleteComputer: (id: number) => Promise<void>
   reload: () => void
 }
 
@@ -71,25 +73,38 @@ export function useBookings(): UseBookingsResult {
   }, [])
 
   const updateBooking = useCallback(
-    async (id: string, changes: Partial<Omit<Booking, 'id'>>) => {
+    async (id: number, changes: Partial<Omit<Booking, 'id'>>) => {
       const updated = await api.updateBooking(id, changes)
       setBookings((prev) => prev.map((b) => (b.id === id ? updated : b)))
     },
     [],
   )
 
-  const deleteBooking = useCallback(async (id: string) => {
+  const deleteBooking = useCallback(async (id: number) => {
     await api.deleteBooking(id)
     setBookings((prev) => prev.filter((b) => b.id !== id))
   }, [])
 
   const updateComputer = useCallback(
-    async (id: string, changes: Partial<Omit<Computer, 'id'>>) => {
+    async (id: number, changes: Partial<Omit<Computer, 'id'>>) => {
       const updated = await api.updateComputer(id, changes)
       setComputers((prev) => prev.map((c) => (c.id === id ? updated : c)))
     },
     [],
   )
+
+  const addComputer = useCallback(async (payload: NewComputer) => {
+    const created = await api.createComputer(payload)
+    setComputers((prev) => [...prev, created])
+    return created
+  }, [])
+
+  // Removing a PC also drops its bookings, matching the API behaviour.
+  const deleteComputer = useCallback(async (id: number) => {
+    await api.deleteComputer(id)
+    setComputers((prev) => prev.filter((c) => c.id !== id))
+    setBookings((prev) => prev.filter((b) => b.computerId !== id))
+  }, [])
 
   return {
     computers,
@@ -101,6 +116,8 @@ export function useBookings(): UseBookingsResult {
     updateBooking,
     deleteBooking,
     updateComputer,
+    addComputer,
+    deleteComputer,
     reload,
   }
 }

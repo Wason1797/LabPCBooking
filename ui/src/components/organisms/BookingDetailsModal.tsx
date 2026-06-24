@@ -21,8 +21,8 @@ interface BookingDetailsModalProps {
   /** All bookings, used to detect overlaps when editing. */
   allBookings: Booking[]
   onClose: () => void
-  onUpdate: (id: string, changes: Partial<Omit<Booking, 'id'>>) => Promise<void>
-  onDelete: (id: string) => Promise<void>
+  onUpdate: (id: number, changes: Partial<Omit<Booking, 'id'>>) => Promise<void>
+  onDelete: (id: number) => Promise<void>
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -47,7 +47,7 @@ function BookingDetails({
   allBookings: Booking[]
   onClose: () => void
   onUpdate: BookingDetailsModalProps['onUpdate']
-  onDelete: (id: string) => Promise<void>
+  onDelete: (id: number) => Promise<void>
 }) {
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)

@@ -3,13 +3,13 @@ import { formatHour, formatHourRange } from '../../utils/time'
 import { formatLongDate } from '../../utils/date'
 
 interface MatrixCellProps {
-  computerId: string
+  computerId: number
   hour: number
   booking: Booking | null
   isExtended: boolean
   isSelected: boolean
-  onPointerDown: (computerId: string, hour: number) => void
-  onPointerEnter: (computerId: string, hour: number) => void
+  onPointerDown: (computerId: number, hour: number) => void
+  onPointerEnter: (computerId: number, hour: number) => void
   onBookingClick: (booking: Booking) => void
 }
 
