@@ -27,6 +27,8 @@ services:
     build: ./ui
     ports:
       - "8080:80"
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 volumes:
   db_data:
