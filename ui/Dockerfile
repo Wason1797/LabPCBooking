@@ -6,7 +6,6 @@ COPY package.json package-lock.json ./
 ENV VITE_API_URL=$VITE_API_URL
 RUN npm ci
 COPY . .
-RUN echo "VITE_API_URL=${VITE_API_URL}" > .env.production
 RUN npm run build
 
 # Stage 2: serve the built assets with nginx.
