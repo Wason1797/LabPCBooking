@@ -11,11 +11,11 @@ export function BookingLayout({ sidebar, children }: BookingLayoutProps) {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-[1400px] items-center gap-3 px-6 py-4">
           <div className="flex size-9 items-center justify-center rounded-lg bg-indigo-600 text-lg font-bold text-white">
-            PC
+            IAI
           </div>
           <div>
             <h1 className="text-lg font-semibold text-slate-900">
-              PC Lab Booking
+              IAI Lab Booking
             </h1>
             <p className="text-xs text-slate-500">Admin console</p>
           </div>
